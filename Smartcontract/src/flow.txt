@@ -1,0 +1,21 @@
+ETH Chain (BridgeETH) - Lock tokens
+
+1. User: Token.approve(BridgeETH_ETH, 100)
+2. User: BridgeETH_ETH.deposit(TOKEN_ETH, 100) 
+   → tokens locked in BridgeETH_ETH, emits Deposit(user, 100)
+3. Relayer sees Deposit → calls BridgeETH_BASE.burnedOnOppositeChain(user, 100)
+   → sets pendingBalance[user] = 100 on Base
+
+Base Chain (BridgeETH) - Mint wrapped
+
+4. User: BridgeETH_BASE.withdraw(RPandeycoin, 100) 
+   → mints 100 RPandeycoin to user (if pendingBalance >= 100)
+
+Reverse: Base → ETH
+
+5. User: BridgeETH_BASE.burn(RPandeycoin, 100)
+   → burns user's RPandeycoin, emits Burn(user, 100)
+6. Relayer sees Burn → calls BridgeETH_ETH.burnedOnOppositeChain(user, 100)
+   → sets pendingBalance[user] = 100 on ETH
+7. User: BridgeETH_ETH.withdraw(TOKEN_ETH, 100)
+   → transfers real tokens from bridge to user
